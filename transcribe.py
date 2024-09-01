@@ -20,7 +20,14 @@ def transcribe_audio(audio_file):
     
     return text
 
-audio_file = "recording.mp3"
+def ask_for_file():
+    print("Enter name of audio file to be transcribed (without .mp3):")
+    new_audio_file = input()
+    audio_file = new_audio_file + ".mp3"
+    return audio_file
+
+# audio_file = "recording.mp3"
+audio_file = ask_for_file()
 transcribed_text = transcribe_audio(audio_file)
 
 def write_variable_to_txt(variable, file_name):
