@@ -30,7 +30,7 @@ def ask_for_file():
 audio_file = ask_for_file()
 transcribed_text = transcribe_audio(audio_file)
 
-def write_variable_to_txt(variable, file_name):
+def write_variable_to_txt(variable):
     """
     Writes the contents of a variable to a text file.
     
@@ -38,8 +38,11 @@ def write_variable_to_txt(variable, file_name):
     variable (str): The content to be written to the file.
     file_name (str): The name of the file to write to (with .txt extension).
     """
-    with open(file_name, 'w') as file:
+    print("Enter name of transciption text file to write to (without .txt):")
+    new_text_file = input()
+    text_file = new_text_file + ".txt"
+    with open(text_file, 'w') as file:
         file.write(str(variable))
 
-write_variable_to_txt(transcribed_text, 'transcription.txt')
+write_variable_to_txt(transcribed_text)
 print("Transcribed Text:\n", transcribed_text)
