@@ -1,48 +1,101 @@
 import speech_recognition as sr
 from pydub import AudioSegment
+import os
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, sent_tokenize
 
+# Download necessary NLTK data
 nltk.download('punkt')
 nltk.download('stopwords')
 
+def split_audio(audio_path, chunk_length_ms=60000):
+    """
+    Splits the audio file into chunks of specified length.
+
+    Parameters:
+    audio_path (str): Path to the audio file.
+    chunk_length_ms (int): Length of each chunk in milliseconds.
+
+    Returns:
+    list: List of chunk file paths.
+    """
+    audio = AudioSegment.from_file(audio_path)
+    chunks = []
+    total_length = len(audio)
+    for i in range(0, total_length, chunk_length_ms):
+        chunk = audio[i:i + chunk_length_ms]
+        chunk_filename = f"chunk_{i // chunk_length_ms}.wav"
+        chunk.export(chunk_filename, format="wav")
+        chunks.append(chunk_filename)
+    return chunks
+
+def transcribe_chunk(recognizer, audio_file):
+    """
+    Transcribes a single audio chunk.
+
+    Parameters:
+    recognizer (sr.Recognizer): An instance of Recognizer.
+    audio_file (str): Path to the audio chunk.
+
+    Returns:
+    str: Transcribed text for the chunk.
+    """
+    with sr.AudioFile(audio_file) as source:
+        audio_data = recognizer.record(source)
+        try:
+            text = recognizer.recognize_google(audio_data)
+            print(f"Transcribed {audio_file}")
+        except sr.UnknownValueError:
+            print(f"Could not understand audio in {audio_file}")
+            text = ""
+        except sr.RequestError as e:
+            print(f"Could not request results from Google Speech Recognition service; {e}")
+            text = ""
+    return text
+
 def transcribe_audio(audio_file):
     recognizer = sr.Recognizer()
-    audio = AudioSegment.from_file(audio_file)
+    # Split audio into chunks
+    chunks = split_audio(audio_file)
+    full_transcription = ""
 
-    # Convert audio to the desired format if necessary
-    audio.export("temp.wav", format="wav")
+    for chunk in chunks:
+        transcription = transcribe_chunk(recognizer, chunk)
+        full_transcription += transcription + " "
+        # Optionally, remove the chunk file after transcription
+        os.remove(chunk)
 
-    with sr.AudioFile("temp.wav") as source:
-        audio_data = recognizer.record(source)
-        text = recognizer.recognize_google(audio_data)
-    
-    return text
+    return full_transcription.strip()
 
 def ask_for_file():
     print("Enter name of audio file to be transcribed (without .mp3):")
-    new_audio_file = input()
-    audio_file = new_audio_file + ".mp3"
+    audio_file = input().strip()
+    audio_file += ".mp3"
+    if not os.path.isfile(audio_file):
+        print(f"File '{audio_file}' does not exist. Please check the name and try again.")
+        return ask_for_file()
     return audio_file
-
-# audio_file = "recording.mp3"
-audio_file = ask_for_file()
-transcribed_text = transcribe_audio(audio_file)
 
 def write_variable_to_txt(variable):
     """
     Writes the contents of a variable to a text file.
-    
+
     Parameters:
     variable (str): The content to be written to the file.
-    file_name (str): The name of the file to write to (with .txt extension).
     """
-    print("Enter name of transciption text file to write to (without .txt):")
-    new_text_file = input()
-    text_file = new_text_file + ".txt"
-    with open(text_file, 'w') as file:
+    print("Enter name of transcription text file to write to (without .txt):")
+    text_file = input().strip()
+    text_file += ".txt"
+    with open(text_file, 'w', encoding='utf-8') as file:
         file.write(str(variable))
+    print(f"Transcription saved to {text_file}")
 
-write_variable_to_txt(transcribed_text)
-print("Transcribed Text:\n", transcribed_text)
+def main():
+    audio_file = ask_for_file()
+    transcribed_text = transcribe_audio(audio_file)
+    write_variable_to_txt(transcribed_text)
+    print("\nTranscribed Text:\n", transcribed_text)
+
+if __name__ == "__main__":
+    main()
