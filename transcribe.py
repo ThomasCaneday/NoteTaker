@@ -5,6 +5,8 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, sent_tokenize
 
+# This file will be used instead of transcribe.py for future use 9/12/24
+
 # Download necessary NLTK data
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -28,11 +30,12 @@ def split_audio(audio_path, chunk_length_ms=60000):
         chunk_filename = f"chunk_{i // chunk_length_ms}.wav"
         chunk.export(chunk_filename, format="wav")
         chunks.append(chunk_filename)
+    print("Total chunks to transcribe: " + str(len(chunks)))
     return chunks
 
 def transcribe_chunk(recognizer, audio_file):
     """
-    Transcribes a single audio chunk.
+    Transcribes a single audio chunk and calculates transcribed chunk ratio.
 
     Parameters:
     recognizer (sr.Recognizer): An instance of Recognizer.
@@ -40,19 +43,27 @@ def transcribe_chunk(recognizer, audio_file):
 
     Returns:
     str: Transcribed text for the chunk.
+    int: Ratio of transcribed chunks.
     """
+    transcribed_chunk = 0
+    total_chunks = 0
     with sr.AudioFile(audio_file) as source:
         audio_data = recognizer.record(source)
         try:
             text = recognizer.recognize_google(audio_data)
             print(f"Transcribed {audio_file}")
+            transcribed_chunk += 1
+            total_chunks += 1
         except sr.UnknownValueError:
             print(f"Could not understand audio in {audio_file}")
             text = ""
+            transcribed_chunk -= 1
+            total_chunks += 1
         except sr.RequestError as e:
             print(f"Could not request results from Google Speech Recognition service; {e}")
             text = ""
-    return text
+    chunk_ratio = transcribed_chunk / total_chunks
+    return text, chunk_ratio
 
 def transcribe_audio(audio_file):
     recognizer = sr.Recognizer()
@@ -61,15 +72,16 @@ def transcribe_audio(audio_file):
     full_transcription = ""
 
     for chunk in chunks:
-        transcription = transcribe_chunk(recognizer, chunk)
+        transcription, ratio = transcribe_chunk(recognizer, chunk)
         full_transcription += transcription + " "
         # Optionally, remove the chunk file after transcription
         os.remove(chunk)
+    print("Transcribed chunk ratio: " + str(ratio))
 
     return full_transcription.strip()
 
 def ask_for_file():
-    print("Enter name of audio file to be transcribed (without .mp3):")
+    print("Enter name of audio file to be transcribed (w/o extension, e.g., .mp3):")
     audio_file = input().strip()
     audio_file += ".mp3"
     if not os.path.isfile(audio_file):
@@ -85,8 +97,8 @@ def write_variable_to_txt(variable):
     variable (str): The content to be written to the file.
     """
     print("Enter name of transcription text file to write to (without .txt):")
-    text_file = input().strip()
-    text_file += ".txt"
+    new_text_file = input().strip()
+    text_file = new_text_file + ".txt"
     with open(text_file, 'w', encoding='utf-8') as file:
         file.write(str(variable))
     print(f"Transcription saved to {text_file}")
