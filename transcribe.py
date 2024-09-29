@@ -66,6 +66,15 @@ def transcribe_chunk(recognizer, audio_file):
     return text, chunk_ratio
 
 def transcribe_audio(audio_file):
+    """
+    Transcribes audio chunks into a text variable.
+
+    Parameters:
+    audio_file (str): Path to the audio file.
+
+    Returns:
+    str: Text variable.
+    """
     recognizer = sr.Recognizer()
     # Split audio into chunks
     chunks = split_audio(audio_file)
