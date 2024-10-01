@@ -52,6 +52,16 @@ This project provides tools to record audio from the microphone, save it as an M
 
 2. The transcription will be saved in `transcription.txt` and printed in the console.
 
+### Summarizing a Text File into Lecture Notes
+
+1. Run the `summarize.py` script to summarize the content of a `.txt` file into lecture notes using OpenAI's GPT-4:
+
+    ```sh
+    python summarize.py
+    ```
+
+2. Ensure you provide the correct file path and OpenAI API key in the script. The summarized lecture notes will be printed in the console.
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any changes.
