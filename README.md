@@ -9,6 +9,7 @@ This project provides tools to record audio from the microphone, save it as an M
 - [Usage](#usage)
   - [Recording Audio](#recording-audio)
   - [Transcribing Audio](#transcribing-audio)
+  - [Summarizing Text](#summarizing-text)
 - [Contributing](#contributing)
 
 ## Prerequisites
@@ -52,7 +53,7 @@ This project provides tools to record audio from the microphone, save it as an M
 
 2. The transcription will be saved in `transcription.txt` and printed in the console.
 
-### Summarizing a Text File into Lecture Notes
+### Summarizing Text
 
 1. Run the `summarize.py` script to summarize the content of a `.txt` file into lecture notes using OpenAI's GPT-4:
 
