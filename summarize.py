@@ -31,8 +31,18 @@ def txt_to_lecture_notes(file_path, api_key):
     except Exception as e:
         return f"Error: {str(e)}"
 
+def get_api_key():
+    print("Enter your OpenAI API key: ")
+    key = input()
+    return key
+
+def get_txt_file():
+    print("Enter name of txt file (without .txt extension: ")
+    file = input() + ".txt"
+    return file
+
 # Example usage:
-api_key = "your_openai_api_key"
-file_path = "path_to_your_txt_file.txt"
+api_key = get_api_key()
+file_path = get_txt_file()
 notes = txt_to_lecture_notes(file_path, api_key)
 print(notes)
